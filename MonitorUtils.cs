@@ -25,7 +25,7 @@ public static class MonitorUtils
                 var dm = DEVMODEW.Create();
                 int width = -1, height = -1;
 
-                if (EnumDisplaySettingsW(dd.DeviceName, ENUM_CURRENT_SETTINGS, ref dm)) ;
+                if (EnumDisplaySettingsW(dd.DeviceName, ENUM_CURRENT_SETTINGS, ref dm))
                 {
                     width = (int)dm.dmPelsWidth;
                     height = (int)dm.dmPelsHeight;

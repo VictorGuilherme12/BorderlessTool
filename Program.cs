@@ -2,8 +2,18 @@
 
 ConsoleUI.SetupConsole();
 
+string gameStatusLine;
+if (GameWindowDetector.TryGetSingleGame(out var game))
+    gameStatusLine = $"🎮 Jogo detectado: {game!.WindowTitle}";
+else
+    gameStatusLine = "🎮 Jogo detectado: (nenhum)";
+
+
 while (true)
 {
+    Console.WriteLine(gameStatusLine);
+    Console.WriteLine(new string('-', 60));
+
     var monitors = MonitorUtils.EnumerateAllMonitors();
     ConsoleUI.PrintMonitorInfo(monitors);
 

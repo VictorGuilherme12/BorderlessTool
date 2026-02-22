@@ -1,12 +1,16 @@
 ﻿# 🎮 BorderlessTool
 
-A Windows tool that forces old/legacy games into **windowed borderless** mode — even when the game doesn't support it natively or ignores `.ini` tweaks.
+A Windows tool to **manage monitors** and force old/legacy games into **windowed borderless** mode — even when the game doesn't support it natively or ignores `.ini` tweaks.
 
 Built with .NET 10 and Win32 interop.
 
 ## Why?
 
-Many older games only offer fullscreen exclusive or windowed with borders. Some don't respect config file changes. BorderlessTool detects the running game and will force it into a borderless windowed state, while also giving you control over monitor resolution and primary display.
+Switching resolution between gaming and desktop use is annoying. Many older games only offer fullscreen exclusive or windowed with borders, and some don't respect config file changes.
+
+BorderlessTool solves both problems in one place:
+- **Quickly switch monitor resolution** (4K ↔ Full HD) and set which monitor is primary
+- **Detect running games** and force them into borderless windowed mode
 
 ## Features
 
@@ -30,7 +34,6 @@ Many older games only offer fullscreen exclusive or windowed with borders. Some 
 ## Getting started
 
 git clone https://github.com/VictorGuilherme12/BorderlessTool.git cd BorderlessTool dotnet run
-
 
 > **Note:** Some operations (set primary monitor, detect game DLLs) may require running as **Administrator**.
 

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MonitorTool;
+namespace BorderlessTool.Core;
 
 public sealed record GameWindowCandidate(
     nint Hwnd,

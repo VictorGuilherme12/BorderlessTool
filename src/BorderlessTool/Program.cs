@@ -1,4 +1,6 @@
-﻿using MonitorTool;
+﻿using BorderlessTool.Monitors;
+using BorderlessTool.UI;
+using BorderlessTool.Core;
 
 ConsoleUI.SetupConsole();
 
@@ -46,7 +48,7 @@ while (true)
     
     Console.WriteLine(new string('-', 60));
 
-    var monitors = MonitorUtils.EnumerateAllMonitors();
+    var monitors = MonitorManager.EnumerateAllMonitors();
     ConsoleUI.PrintMonitorInfo(monitors);
 
     int option = ConsoleUI.DisplayMainMenu();
@@ -95,9 +97,9 @@ while (true)
     string targetDevice = monitors[monitorNum - 1].DeviceName;
     MonitorStatus status = option switch
     {
-        1 => MonitorUtils.ChangeResolution(targetDevice, 3840, 2160),
-        2 => MonitorUtils.ChangeResolution(targetDevice, 1920, 1080),
-        3 => MonitorUtils.SetPrimaryMonitor(targetDevice),
+        1 => MonitorManager.ChangeResolution(targetDevice, 3840, 2160),
+        2 => MonitorManager.ChangeResolution(targetDevice, 1920, 1080),
+        3 => MonitorManager.SetPrimaryMonitor(targetDevice),
         _ => MonitorStatus.Failed
     };
 

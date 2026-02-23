@@ -35,6 +35,8 @@ public static class MonitorManager
                     DeviceName: dd.DeviceName,
                     Width: width,
                     Height: height,
+                    Y: dm.dmPositionY,
+                    X: dm.dmPositionX,
                     IsPrimary: isPrimary,
                     StateFlags: dd.StateFlags
                 ));

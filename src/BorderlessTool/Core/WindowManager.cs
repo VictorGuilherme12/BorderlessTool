@@ -9,6 +9,25 @@ namespace BorderlessTool.Core;
 
 public static class WindowManager
 {
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MONITORINFO
+    {
+        public uint cbSize;
+        public RECT rcMonitor;
+        public RECT rcWork;
+        public uint dwFlags;
+    }
+
     // Índices
     private const int GWL_STYLE = -16;
     private const int GWL_EXSTYLE = -20;
@@ -23,11 +42,27 @@ public static class WindowManager
     private const uint WS_POPUP = 0x80000000;
     private const uint WS_VISIBLE = 0x10000000;
 
+    private const uint SWP_NOZORDER = 0x0004;
+    private const uint SWP_NOACTIVATE = 0x0010;
+    private const uint SWP_FRAMECHANGED = 0x0020;
+    private const uint SWP_SHOWWINDOW = 0x0040;
+
+    private const uint MONITOR_DEFAULTTONEAREST = 2;
+
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr", SetLastError = true)]
     private static extern IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex);
 
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", SetLastError = true)]
     private static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
     public static IntPtr GetHwnd()
     {
@@ -75,11 +110,29 @@ public static class WindowManager
 
             SetWindowLongPtr(hwnd, GWL_STYLE, new IntPtr(newStyle));
             Console.WriteLine("Borda removida.");
+
+           
         }
         else
         {
             Console.WriteLine("Janela já é borderless, só vai reposicionar.");
         }
+
+        IntPtr hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+
+        var mi = new MONITORINFO();
+        mi.cbSize = (uint)Marshal.SizeOf<MONITORINFO>();
+        GetMonitorInfo(hMonitor, ref mi);
+
+        int x = mi.rcMonitor.Left;
+        int y = mi.rcMonitor.Top;
+        int width = mi.rcMonitor.Right - mi.rcMonitor.Left;
+        int height = mi.rcMonitor.Bottom - mi.rcMonitor.Top;
+
+        SetWindowPos(hwnd, IntPtr.Zero, x, y, width, height, SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+
+
+        Console.WriteLine($"X: {x}, Y: {y}, Width: {width}, Height: {height}");
     }
 
 }

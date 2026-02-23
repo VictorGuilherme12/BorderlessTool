@@ -7,6 +7,8 @@ ConsoleUI.SetupConsole();
 GameWindowCandidate? detectedGame = null;
 object lockObj = new();
 
+Console.WriteLine("Versão nova rodando!");
+
 // Timer em background que detecta jogos a cada 2 segundos
 var gameDetectionTimer = new Timer(_ =>
 {
@@ -41,11 +43,11 @@ while (true)
     lock (lockObj)
     {
         if (detectedGame != null)
-           Console.WriteLine($"🎮 Jogo detectado: {detectedGame!.WindowTitle}");
+            Console.WriteLine($"🎮 Jogo detectado: {detectedGame!.WindowTitle}");
         else
             Console.WriteLine("🎮 Jogo detectado: (nenhum)");
     }
-    
+
     Console.WriteLine(new string('-', 60));
 
     var monitors = MonitorManager.EnumerateAllMonitors();
@@ -53,32 +55,35 @@ while (true)
 
     int option = ConsoleUI.DisplayMainMenu();
 
+    // ✅ 5 = SAIR
     if (option == 5)
+        break;
+
+    // 🎮 Gerenciar jogo
+    if (option == 4)
     {
         lock (lockObj)
         {
             if (detectedGame == null)
             {
-                Console.WriteLine($"Nenhuma opcao disponivel");
+                Console.WriteLine("\nNenhuma opção disponível.");
                 ConsoleUI.WaitAndClear();
                 continue;
             }
 
             int gameOption = ConsoleUI.GameOptions();
+
             if (gameOption == 1)
             {
-                Console.WriteLine("\n⚠️ Função ainda não implementada.");
+                WindowManager.GetHwnd();
             }
-            
         }
 
         ConsoleUI.WaitAndClear();
         continue;
     }
 
-    if (option == 4)
-        break;
-
+    // Opções 1-3 (Monitores)
     if (option < 1 || option > 3 || monitors.Count == 0)
     {
         Console.WriteLine("\nOpção inválida ou nenhum monitor encontrado.");
@@ -95,6 +100,7 @@ while (true)
     }
 
     string targetDevice = monitors[monitorNum - 1].DeviceName;
+
     MonitorStatus status = option switch
     {
         1 => MonitorManager.ChangeResolution(targetDevice, 3840, 2160),
@@ -107,6 +113,7 @@ while (true)
     ConsoleUI.WaitAndClear();
 }
 
+// 🔚 Encerramento limpo
 gameDetectionTimer.Dispose();
 
 static void UpdateGameStatusLine(string? gameTitle)
@@ -127,6 +134,6 @@ static void UpdateGameStatusLine(string? gameTitle)
     }
     catch
     {
-
+        // Ignora erros de cursor (ex: redimensionamento da janela)
     }
 }

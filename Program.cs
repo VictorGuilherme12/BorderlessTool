@@ -2,16 +2,48 @@
 
 ConsoleUI.SetupConsole();
 
-string gameStatusLine;
-if (GameWindowDetector.TryGetSingleGame(out var game))
-    gameStatusLine = $"🎮 Jogo detectado: {game!.WindowTitle}";
-else
-    gameStatusLine = "🎮 Jogo detectado: (nenhum)";
+GameWindowCandidate? detectedGame = null;
+object lockObj = new();
 
+// Timer em background que detecta jogos a cada 2 segundos
+var gameDetectionTimer = new Timer(_ =>
+{
+    if (GameWindowDetector.TryGetSingleGame(out var game))
+    {
+        lock (lockObj)
+        {
+            if (detectedGame?.WindowTitle != game!.WindowTitle)
+            {
+                detectedGame = game;
+                UpdateGameStatusLine(game.WindowTitle);
+            }
+        }
+    }
+    else
+    {
+        lock (lockObj)
+        {
+            if (detectedGame != null)
+            {
+                detectedGame = null;
+                UpdateGameStatusLine(null);
+            }
+        }
+    }
+}, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
 
 while (true)
 {
-    Console.WriteLine(gameStatusLine);
+    Console.Clear();
+
+    lock (lockObj)
+    {
+        if (detectedGame != null)
+           Console.WriteLine($"🎮 Jogo detectado: {detectedGame!.WindowTitle}");
+        else
+            Console.WriteLine("🎮 Jogo detectado: (nenhum)");
+    }
+    
     Console.WriteLine(new string('-', 60));
 
     var monitors = MonitorUtils.EnumerateAllMonitors();
@@ -48,4 +80,28 @@ while (true)
 
     ConsoleUI.ShowOperationResult(status);
     ConsoleUI.WaitAndClear();
+}
+
+gameDetectionTimer.Dispose();
+
+static void UpdateGameStatusLine(string? gameTitle)
+{
+    try
+    {
+        int savedTop = Console.CursorTop;
+        int savedLeft = Console.CursorLeft;
+
+        Console.SetCursorPosition(0, 0);
+
+        if (gameTitle != null)
+            Console.Write($"🎮 Jogo detectado: {gameTitle}".PadRight(Console.WindowWidth - 1));
+        else
+            Console.Write("🎮 Jogo detectado: (nenhum)".PadRight(Console.WindowWidth - 1));
+
+        Console.SetCursorPosition(savedLeft, savedTop);
+    }
+    catch
+    {
+
+    }
 }

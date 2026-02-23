@@ -26,11 +26,14 @@ public static class WindowManager
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr", SetLastError = true)]
     private static extern IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex);
 
-    public static void GetHwnd()
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", SetLastError = true)]
+    private static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+    public static IntPtr GetHwnd()
     {
         bool found = GameDetector.TryGetSingleGame(out GameWindowCandidate? game);
 
-        
+
 
         if (found)
         {
@@ -43,13 +46,40 @@ public static class WindowManager
             Console.WriteLine($"Tem borda:    {(style & WS_BORDER) != 0}");
             Console.WriteLine($"Tem título:   {(style & WS_CAPTION) != 0}");
             Console.WriteLine($"Redimension:  {(style & WS_THICKFRAME) != 0}");
+            return hwnd;
+
+        }
+
+        Console.WriteLine("Nenhum jogo encontrado.");
+        return IntPtr.Zero;
+
+    }
+
+    public static void ApplyBorderless(IntPtr hwnd)
+    {
+        uint style = (uint)GetWindowLongPtr(hwnd, GWL_STYLE).ToInt64();
+
+        bool itsPopUp = (style & WS_POPUP) != 0;
+        bool haveBorder = (style & WS_CAPTION) != 0 || (style & WS_THICKFRAME) != 0;
+
+        if (haveBorder)
+        {
+            uint newStyle = style;
+            newStyle &= ~WS_CAPTION;
+            newStyle &= ~WS_THICKFRAME;
+            newStyle &= ~WS_BORDER;
+            newStyle &= ~WS_SYSMENU;
+            newStyle &= ~WS_MINIMIZEBOX;
+            newStyle &= ~WS_MAXIMIZEBOX;
+            newStyle |= WS_POPUP;
+
+            SetWindowLongPtr(hwnd, GWL_STYLE, new IntPtr(newStyle));
+            Console.WriteLine("Borda removida.");
         }
         else
         {
-            Console.WriteLine("Nenhum jogo encontrado.");
-            
+            Console.WriteLine("Janela já é borderless, só vai reposicionar.");
         }
-      
     }
 
 }

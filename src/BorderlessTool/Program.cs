@@ -75,7 +75,11 @@ while (true)
 
             if (gameOption == 1)
             {
-                WindowManager.GetHwnd();
+                IntPtr hwnd = WindowManager.GetHwnd();
+                if (hwnd != IntPtr.Zero)
+                {
+                    WindowManager.ApplyBorderless(hwnd);
+                }
             }
         }
 

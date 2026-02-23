@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using BorderlessTool.Monitors;
 
-namespace MonitorTool;
+namespace BorderlessTool.UI;
 
 public static class ConsoleUI
 {

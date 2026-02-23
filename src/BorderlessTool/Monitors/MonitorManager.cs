@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MonitorTool;
+namespace BorderlessTool.Monitors;
 
-public static class MonitorUtils
+public static class MonitorManager
 {
     public static IReadOnlyList<MonitorInfo> EnumerateAllMonitors()
     {

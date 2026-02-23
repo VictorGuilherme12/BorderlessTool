@@ -1,4 +1,4 @@
-﻿namespace MonitorTool;
+﻿namespace BorderlessTool.Monitors;
 public readonly record struct MonitorInfo (
     string DeviceName,
     int Width,
@@ -7,12 +7,4 @@ public readonly record struct MonitorInfo (
     uint StateFlags
 );
 
-public enum MonitorStatus
-{
-    Success,
-    Failed,
-    BadMode,
-    RestartRequired,
-    MonitorNotFound
 
-}

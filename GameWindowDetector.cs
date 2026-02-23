@@ -20,6 +20,7 @@ public static class GameWindowDetector
     private static readonly HashSet<string> GraphicsDlls = new(StringComparer.OrdinalIgnoreCase)
     {
         "d3d9.dll",
+        "d3d10.dll",
         "d3d11.dll",
         "d3d12.dll",
         "dxgi.dll",

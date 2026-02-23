@@ -14,7 +14,7 @@ public sealed record GameWindowCandidate(
     string WindowTitle
 );
 
-public static class GameWindowDetector
+public static class GameDetector
 {
     // DLLs que indicam uso de GPU (DirectX / Vulkan)
     private static readonly HashSet<string> GraphicsDlls = new(StringComparer.OrdinalIgnoreCase)

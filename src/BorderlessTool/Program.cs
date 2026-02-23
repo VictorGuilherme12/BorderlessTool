@@ -8,7 +8,7 @@ object lockObj = new();
 // Timer em background que detecta jogos a cada 2 segundos
 var gameDetectionTimer = new Timer(_ =>
 {
-    if (GameWindowDetector.TryGetSingleGame(out var game))
+    if (GameDetector.TryGetSingleGame(out var game))
     {
         lock (lockObj)
         {

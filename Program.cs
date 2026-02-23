@@ -51,6 +51,29 @@ while (true)
 
     int option = ConsoleUI.DisplayMainMenu();
 
+    if (option == 5)
+    {
+        lock (lockObj)
+        {
+            if (detectedGame == null)
+            {
+                Console.WriteLine($"Nenhuma opcao disponivel");
+                ConsoleUI.WaitAndClear();
+                continue;
+            }
+
+            int gameOption = ConsoleUI.GameOptions();
+            if (gameOption == 1)
+            {
+                Console.WriteLine("\n⚠️ Função ainda não implementada.");
+            }
+            
+        }
+
+        ConsoleUI.WaitAndClear();
+        continue;
+    }
+
     if (option == 4)
         break;
 

@@ -32,7 +32,17 @@ public static class ConsoleUI
         Console.WriteLine("2. Mudar para Full HD (1920x1080)");
         Console.WriteLine("3. Definir como monitor primário");
         Console.WriteLine("4. Sair");
+        Console.WriteLine("5. Gerenciar jogo detectado");
         Console.Write("Opção: ");
+
+        return ReadInt();
+    }
+
+    public static int GameOptions()
+    {
+        Console.WriteLine("\nEscolha uma ação para o jogo:");
+        Console.WriteLine("1. Aplicar Borderless windowed");
+        Console.WriteLine("Opção: ");
 
         return ReadInt();
     }

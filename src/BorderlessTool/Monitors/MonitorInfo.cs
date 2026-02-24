@@ -28,6 +28,7 @@
 /// </param>
 public readonly record struct MonitorInfo(
     string DeviceName,
+    string FriendlyName,
     int Width,
     int Height,
     int X,

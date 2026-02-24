@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
+
 namespace BorderlessTool.Monitors;
 
 /// <summary>
@@ -23,6 +24,7 @@ public static class MonitorManager
     public static IReadOnlyList<MonitorInfo> EnumerateAllMonitors()
     {
         var monitors = new List<MonitorInfo>();
+        var friendlyNames = GetAllMonitorFriendlyNames();
 
         uint deviceNum = 0;
         while (true)
@@ -44,8 +46,28 @@ public static class MonitorManager
                     height = (int)dm.dmPelsHeight;
                 }
 
+                // Match friendly name via hardware ID from the monitor's child device
+                string friendlyName = dd.DeviceName;
+                var monitorDevice = DISPLAY_DEVICEW.Create();
+
+                if (EnumDisplayDevicesW(dd.DeviceName, 0, ref monitorDevice, 0))
+                {
+                    // monitorDevice.DeviceID ex: MONITOR\PHLC0D2\{guid}
+                    // WMI InstanceName ex:      DISPLAY\PHLC0D2\5&...
+                    // Common part is the hardware code: PHLC0D2, SAM1016, etc.
+                    string hwId = monitorDevice.DeviceID.Split('\\')
+                        .Skip(1).FirstOrDefault() ?? "";
+
+                    string match = friendlyNames.Keys.FirstOrDefault(k =>
+                        k.Contains(hwId, StringComparison.OrdinalIgnoreCase)) ?? "";
+
+                    if (!string.IsNullOrEmpty(match))
+                        friendlyName = friendlyNames[match];
+                }
+
                 monitors.Add(new MonitorInfo(
                     DeviceName: dd.DeviceName,
+                    FriendlyName: friendlyName,
                     Width: width,
                     Height: height,
                     Y: dm.dmPositionY,
@@ -60,6 +82,21 @@ public static class MonitorManager
 
         return monitors;
     }
+
+    private static readonly Dictionary<string, string> ManufacturerCodes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["SAM"] = "Samsung",
+        ["PHL"] = "Philips",
+        ["DEL"] = "Dell",
+        ["LEN"] = "Lenovo",
+        ["ACI"] = "ASUS",
+        ["AOC"] = "AOC",
+        ["LGD"] = "LG",
+        ["BNQ"] = "BenQ",
+        ["HWP"] = "HP",
+        ["MST"] = "MSI",
+        ["ACR"] = "Acer",
+    };
 
     /// <summary>
     /// Changes the resolution of the specified monitor.
@@ -143,6 +180,52 @@ public static class MonitorManager
         }
 
         return MonitorStatus.Success;
+    }
+
+    /// <summary>
+    /// Queries WMI's <c>WmiMonitorID</c> class to build an ordered list of physical monitor
+    /// friendly names. Since WMI returns monitors in the same order as <c>EnumDisplayDevicesW</c>,
+    /// the list index directly corresponds to the display number (0-based).
+    /// </summary>
+    public static IReadOnlyDictionary<string, string> GetAllMonitorFriendlyNames()
+    {
+        var names = new Dictionary<string, string>();
+
+        try
+        {
+            using var searcher = new System.Management.ManagementObjectSearcher(
+                @"root\wmi", "SELECT * FROM WmiMonitorID");
+
+            foreach (System.Management.ManagementObject obj in searcher.Get())
+            {
+                string instance = obj["InstanceName"]?.ToString() ?? "";
+
+                var nameArray = obj["UserFriendlyName"] as ushort[];
+                if (nameArray == null) continue;
+
+                string name = new string(nameArray
+                    .TakeWhile(c => c != 0)
+                    .Select(c => (char)c)
+                    .ToArray()).Trim();
+
+                var mfgArray = obj["ManufacturerName"] as ushort[];
+                string manufacturer = mfgArray == null ? string.Empty : new string(mfgArray
+                    .TakeWhile(c => c != 0)
+                    .Select(c => (char)c)
+                    .ToArray()).Trim();
+
+                string resolvedMfg = ManufacturerCodes.TryGetValue(manufacturer, out var known)
+                    ? known
+                    : manufacturer;
+
+                string fullName = string.IsNullOrWhiteSpace(resolvedMfg) ? name : $"{resolvedMfg} {name}";
+
+                names[instance] = fullName;
+            }
+        }
+        catch { }
+
+        return names;
     }
 
     // -------------------------------------------------------------------------

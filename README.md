@@ -57,7 +57,7 @@ git clone https://github.com/VictorGuilherme12/BorderlessTool.git cd BorderlessT
 
 ## Roadmap
 
-- [ ] Force windowed borderless on detected game (remove borders + resize to monitor)
+- [X] Force windowed borderless on detected game (remove borders + resize to monitor)
 - [ ] Custom resolution input
 - [ ] Save monitor profiles (JSON)
 - [ ] Multi-monitor positioning
